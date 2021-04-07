@@ -103,7 +103,6 @@ void Try(int r, int c)
             position empty_cell = find_empty();
 
             // No more empty cells (-1) means the board have been solved
-            // If there still exits an empty cell, try to fill that cell
             if (empty_cell.r == -1 && empty_cell.c == -1)
                 solution();
             else
