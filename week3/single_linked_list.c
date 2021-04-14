@@ -8,18 +8,85 @@ typedef struct Profile
 {
 	char name[MAX_L];
 	char email[MAX_L];
-	struct Profile* next;
-}
-Profile;
+	struct Profile *next;
+} Profile;
 
 Profile *first, *last;
 
-Profile* makeProfile(char *name, char *email)
+void initList(void);
+int listEmpty(void);
+Profile *makeProfile(char *name, char *email);
+void insertLast(char *name, char *email);
+void loadData(char *filename);
+void printList(void);
+void removeProfile(char *name);
+Profile *findProfile(char *name);
+void saveData(char *filename);
+void clearList(void);
+
+int main(void)
 {
-	Profile* node = malloc(sizeof(Profile));
-	strcpy(node->name, name);
-	strcpy(node->email, email);
-	return node;
+	int choice;
+	char filename[MAX_L];
+	char name[MAX_L];
+	char email[MAX_L];
+	Profile *p;
+
+	while (1)
+	{
+		printf("1. Load data\n");
+		printf("2. Display list\n");
+		printf("3. Create new profile\n");
+		printf("4. Remove a profile\n");
+		printf("5. Find a profile\n");
+		printf("6. Save data\n");
+		printf("7. Quit\n");
+		printf("Enter command: ");
+
+		scanf("%d", &choice);
+		switch (choice)
+		{
+		case 1:
+			printf("Enter filename: ");
+			scanf("%s", filename);
+			loadData(filename);
+			break;
+		case 2:
+			printList();
+			break;
+		case 3:
+			printf("Enter name: ");
+			scanf("%s", name);
+			printf("Enter email: ");
+			scanf("%s", email);
+			insertLast(name, email);
+			break;
+		case 4:
+			printf("Enter name: ");
+			scanf("%s", name);
+			removeProfile(name);
+			break;
+		case 5:
+			printf("Enter name: ");
+			scanf("%s", name);
+			p = findProfile(name);
+			if (p != NULL)
+				printf("FOUND profile %s, %s\n", p->name, p->email);
+			else
+				printf("NOT FOUND profile %s\n", name);
+			break;
+		case 6:
+			printf("Enter name: ");
+			scanf("%s", filename);
+			saveData(filename);
+			break;
+		case 7:
+			clearList();
+			return 0;
+			break;
+		}
+		printf("\n");
+	}
 }
 
 void initList(void)
@@ -30,143 +97,130 @@ void initList(void)
 
 int listEmpty(void)
 {
-	return first == NULL && last == NULL;
+	return (first == NULL && last == NULL);
+}
+
+Profile *makeProfile(char *name, char *email)
+{
+	Profile *p = malloc(sizeof(Profile));
+	strcpy(p->name, name);
+	strcpy(p->email, email);
+	p->next = NULL;
+	return p;
 }
 
 void insertLast(char *name, char *email)
 {
-	Profile *profile = makeProfile(name, email);
+	Profile *p = makeProfile(name, email);
 	if (listEmpty())
 	{
-		first = profile;
-		last = profile;
+		first = p;
+		last = p;
 	}
 	else
 	{
-		last->next = profile;
-		last = profile;
+		last->next = p;
+		last = p;
 	}
+}
+
+void loadData(char *filename)
+{
+	FILE *f = fopen(filename, "r");
+	if (f == NULL)
+	{
+		printf("Load data -> file not found\n");
+		return;
+	}
+
+	char name[MAX_L], email[MAX_L];
+	while (!feof(f))
+	{
+		fscanf(f, "%s%s", name, email);
+		insertLast(name, email);
+	}
+
+	fclose(f);
 }
 
 void printList(void)
 {
 	for (Profile *p = first; p != NULL; p = p->next)
+	{
 		printf("%s, %s\n", p->name, p->email);
+	}
 }
 
-Profile* removeProfile(Profile *f, char *name)
+void removeProfile(char *name)
 {
-	if (listEmpty())
-		return NULL;
-	if (strcmp(f->name, name) == 0)
+	Profile *p, *tmp, *prev;
+
+	if (strcmp(first->name, name) == 0)
 	{
-		Profile *tmp = f->next;
-		free(f);
-		if (tmp == NULL)
+		while (strcmp(first->name, name) == 0)
+		{
+			tmp = first;
+			first = first->next;
+			free(tmp);
+		}
+		if (first = NULL)
 			last = NULL;
-		return tmp;
 	}
-	else
-	{
-		f->next = removeProfile(f->next, name);
-		return f;
-	}
-}
 
-void load(char *filename)
-{
-	FILE *f = fopen(filename, "r");
-	if (f == NULL)
-		printf("Load data -> file not found\n");
-
-	while (!feof(f))
-	{
-		char name[256], email[256];
-		fscanf(f, "%s%s", name, email);
-		insertLast(name, email);
-	}
-	fclose(f);
-}
-
-void processFind(void)
-{
-	char name[256];
-	scanf("%s", name);
-	Profile *profile = NULL;
-	for (Profile *p = first; p != NULL; p = p->next)
+	prev = first;
+	p = first->next;
+	while (p != NULL)
 	{
 		if (strcmp(p->name, name) == 0)
 		{
-			profile = p;
-			break;
+			tmp = p;
+			p = p->next;
+			prev->next = p;
+			free(tmp);
+		}
+		else
+		{
+			prev = p;
+			p = prev->next;
 		}
 	}
-	if (profile == NULL)
-	{
-		printf("NOT FOUND profile %s\n", name);
-	}
-	else
-	{
-		printf("FOUND profile %s, %s\n", profile->name, profile->email);
-	}
+	last = prev;
 }
 
-void processLoad(void)
+Profile *findProfile(char *name)
 {
-	char filename[256];
-	scanf("%s", filename);
-	load(filename);
+	Profile *p = first;
+	while (p != NULL)
+	{
+		if (strcmp(p->name, name) == 0)
+			return p;
+		p = p->next;
+	}
+	return NULL;
 }
 
-void processStore(void)
+void saveData(char *filename)
 {
-	char filename[256];
-	scanf("%s", filename);
-	FILE *f = fopen(filename, "w");
+	FILE *f = fopen(filename, "w+");
 	for (Profile *p = first; p != NULL; p = p->next)
 	{
 		fprintf(f, "%s %s", p->name, p->email);
 		if (p->next != NULL)
 			fprintf(f, "\n");
 	}
+
 	fclose(f);
 }
 
-void processInsert(void)
+void clearList(void)
 {
-	char name[256], email[256];
-	scanf("%s%s", name, email);
-	insertLast(name, email);
-}
-
-void processRemove(void)
-{
-	char name[256];
-	scanf("%s", name);
-	first = removeProfile(first, name);
-}
-
-int main(void)
-{
-	initList();
-	while(1)
+	Profile *p = first;
+	Profile *tmp = NULL;
+	while (p != NULL)
 	{
-		printf("Enter command: ");
-		char cmd[256];
-		scanf("%s", cmd);
-		if (strcmp(cmd, "Quit") == 0)
-			break;
-		else if (strcmp(cmd, "Load") == 0)
-			processLoad();
-		else if (strcmp(cmd, "Print") == 0)
-			printList();
-		else if (strcmp(cmd, "Find") == 0)
-			processFind();
-		else if (strcmp(cmd, "Insert") == 0)
-			processInsert();
-		else if (strcmp(cmd, "Remove") == 0)
-			processRemove();
-		else if (strcmp(cmd, "Store") == 0)
-			processStore();
+		tmp = p;
+		p = p->next;
+		free(tmp);
 	}
+	first = last = NULL;
 }
