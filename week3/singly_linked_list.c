@@ -165,7 +165,7 @@ void removeProfile(char *name)
 			first = first->next;
 			free(tmp);
 		}
-		if (first = NULL)
+		if (first == NULL)
 			last = NULL;
 	}
 
