@@ -8,7 +8,61 @@ typedef struct Node
     struct Node *leftChild;
     struct Node *rightChild;
 } Node;
+
+Node *makeNode(int id);
+Node *find(Node *r, int id);
+void addLeftChild(int u, int left);
+void addRightChild(int u, int right);
+void load(char *filename);
+void printTree(Node *r);
+void printTreeF(Node *r, FILE *f);
+void processLoad();
+void printChildren(Node *p);
+void processFind();
+void processPrint();
+void processAddLeftChild();
+void processAddRightChild();
+int height(Node *p);
+void processHeight();
+int count(Node *p);
+void printLeaves(Node *p);
+void processFindLeaves();
+void processCount();
+void processStore();
+void freeTree(Node *r);
+
 Node *root;
+
+void main()
+{
+    while (1)
+    {
+        char cmd[256]; // representing the input command
+        printf("Enter a command: ");
+        scanf("%s", cmd);
+        if (strcmp(cmd, "Quit") == 0)
+            break;
+        else if (strcmp(cmd, "Load") == 0)
+            processLoad();
+        else if (strcmp(cmd, "Print") == 0)
+            processPrint();
+        else if (strcmp(cmd, "Find") == 0)
+            processFind();
+        else if (strcmp(cmd, "Height") == 0)
+            processHeight();
+        else if (strcmp(cmd, "Count") == 0)
+            processCount();
+        else if (strcmp(cmd, "FindLeaves") == 0)
+            processFindLeaves();
+        else if (strcmp(cmd, "AddLeftChild") == 0)
+            processAddLeftChild();
+        else if (strcmp(cmd, "AddRightChild") == 0)
+            processAddRightChild();
+        else if (strcmp(cmd, "Store") == 0)
+            processStore();
+    }
+    freeTree(root);
+}
 
 Node *makeNode(int id)
 {
@@ -244,35 +298,4 @@ void freeTree(Node *r)
     freeTree(r->rightChild);
     free(r);
     r = NULL;
-}
-
-void main()
-{
-    while (1)
-    {
-        char cmd[256]; // representing the input command
-        printf("Enter a command: ");
-        scanf("%s", cmd);
-        if (strcmp(cmd, "Quit") == 0)
-            break;
-        else if (strcmp(cmd, "Load") == 0)
-            processLoad();
-        else if (strcmp(cmd, "Print") == 0)
-            processPrint();
-        else if (strcmp(cmd, "Find") == 0)
-            processFind();
-        else if (strcmp(cmd, "Height") == 0)
-            processHeight();
-        else if (strcmp(cmd, "Count") == 0)
-            processCount();
-        else if (strcmp(cmd, "FindLeaves") == 0)
-            processFindLeaves();
-        else if (strcmp(cmd, "AddLeftChild") == 0)
-            processAddLeftChild();
-        else if (strcmp(cmd, "AddRightChild") == 0)
-            processAddRightChild();
-        else if (strcmp(cmd, "Store") == 0)
-            processStore();
-    }
-    freeTree(root);
 }

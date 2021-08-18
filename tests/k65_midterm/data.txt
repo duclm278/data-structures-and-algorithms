@@ -1,0 +1,10 @@
+3					 
+HS001						
+Nguyen Van A
+8   7   9
+HS002
+Tran Van B
+6   6   8
+HS003
+Nguyen Van C
+10 10  10
